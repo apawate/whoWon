@@ -8,7 +8,7 @@ while cap.isOpened():
     ret, frame = cap.read()
     if not ret:
         break
-    cv.imshow('frame', gray)
+    cv.imshow('frame', frame)
     if cv.waitKey(1) == ord('q'):
         break
 
