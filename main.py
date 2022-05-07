@@ -2,10 +2,9 @@ import numpy as np
 import cv2 as cv
 
 race = input("Enter the video file name: ")
-width = int(input("How many seconds should the finish cover? "))
-width = width * 30
-col = width
 cap = cv.VideoCapture(race)
+width = int(cap.get(cv.CAP_PROP_FRAME_COUNT))
+col = width
 
 while cap.isOpened():
     ret, frame = cap.read()
