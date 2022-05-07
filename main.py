@@ -17,10 +17,11 @@ while cap.isOpened():
         output = np.zeros((height, width, 3), np.uint8)
     snippet = frame[0:height-1, 0:1]
     output[0:height-1, col-1:col] = snippet
-    cv.imshow('zeroes', output)
+    cv.imshow('who won?', output)
     col = col - 1
     if cv.waitKey(1) == ord('q'):
         break
 
+cv.imwrite("finish.png", output)
 cap.release()
 cv.destroyAllWindows()
