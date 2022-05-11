@@ -3,6 +3,9 @@ import cv2 as cv
 
 race = input("Enter the video file name: ")
 width = int(input("How many seconds should the finish cover? "))
+step = float(input("How often should timestamps be in seconds? "))
+step = step * 30
+step = int(step)
 width = width * 30
 col = width
 cap = cv.VideoCapture(race)
@@ -21,6 +24,9 @@ while cap.isOpened():
     col = col - 1
     if cv.waitKey(1) == ord('q'):
         break
+
+for x in range(0, width, step):
+    output = cv.putText(output, str(x), (x * step, height-1), FONT_HERSHEY_SIMPLEX, 5, (0, 0, 0))
 
 cv.imwrite("finish.png", output)
 cap.release()
