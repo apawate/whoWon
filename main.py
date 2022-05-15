@@ -24,8 +24,8 @@ while cap.isOpened():
     if cv.waitKey(1) == ord('q'):
         break
 black = np.zeros((height, 1, 3), np.uint8)
-for x in range(width-1, 0, -step):
-    output[0:height, x-1:x] = black
+for x in range(0, width, step):
+    output[0:height, ((x*step)-1):((x*step))] = black
     output = cv.putText(output, str(x/30), (int(x * step), height-1), cv.FONT_HERSHEY_SIMPLEX, 0.3, (0, 0, 0))
 
 cv.imwrite("finish.png", output)
