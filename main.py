@@ -25,7 +25,7 @@ while cap.isOpened():
         break
 
 for x in range(0, width, step):
-    output = cv.putText(output, str(x), (x * step, height-1), FONT_HERSHEY_SIMPLEX, 5, (0, 0, 0))
+    output = cv.putText(output, str(x), (int(x * step), height-1), cv.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 0))
 
 cv.imwrite("finish.png", output)
 cap.release()
