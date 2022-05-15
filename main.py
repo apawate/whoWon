@@ -2,6 +2,9 @@ import numpy as np
 import cv2 as cv
 
 race = input("Enter the video file name: ")
+step = float(input("How often should timestamps be in seconds? "))
+step = step * 30
+step = int(step)
 cap = cv.VideoCapture(race)
 width = int(cap.get(cv.CAP_PROP_FRAME_COUNT))
 col = width
@@ -20,6 +23,9 @@ while cap.isOpened():
     col = col - 1
     if cv.waitKey(1) == ord('q'):
         break
+
+for x in range(0, width, step):
+    output = cv.putText(output, str(x), (x * step, height-1), FONT_HERSHEY_SIMPLEX, 5, (0, 0, 0))
 
 cv.imwrite("finish.png", output)
 cap.release()
