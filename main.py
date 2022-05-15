@@ -24,8 +24,8 @@ while cap.isOpened():
     if cv.waitKey(1) == ord('q'):
         break
 
-for x in range(0, width, step):
-    output = cv.putText(output, str(x), (int(x * step), height-1), cv.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 0))
+for x in range(width-1, 0, -step):
+    output = cv.putText(output, str(x/30), (int(x * step), height-1), cv.FONT_HERSHEY_SIMPLEX, 0.3, (0, 0, 0))
 
 cv.imwrite("finish.png", output)
 cap.release()
