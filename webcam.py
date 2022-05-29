@@ -7,16 +7,19 @@ app = Flask('app')
 def index():
     return render_template_string('''
     <video id="player" controls autoplay></video>
-<script>
-  const player = document.getElementById('player');
+    <script>
+        var player = document.getElementById('player');
 
-  const constraints = {
-    video: true,
-  };
+        const constraints = {
+            video: true,
+        };
 
-  navigator.mediaDevices.getUserMedia(constraints).then((stream) => {
-    player.srcObject = stream;
-  });
-</script>''')
+    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+    navigator.mediaDevices.getUserMedia(constraints).then(function(stream) {
+        player.srcObject = stream;
+        player.play();
+    });
+    }
+    </script>''')
 
 app.run('0.0.0.0', port=3000)
