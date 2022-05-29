@@ -1,7 +1,9 @@
 import cv2
 import numpy as np
+import warnings
 
-camera = cv2.VideoCapture(0)
+warnings.filterwarnings('ignore')
+camera = cv2.VideoCapture("udp://@0.0.0.0:3000")
 
 def stretch_image(image, x_factor, img_h, img_w):
     image = cv2.resize(image, (5*img_w, img_h))
