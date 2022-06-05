@@ -1,33 +1,37 @@
+import cv2
 import numpy as np
-import cv2 as cv
+import warnings
 
-race = input("Enter the video file name: ")
-step = float(input("How often should timestamps be in seconds? "))
-step = step * 30
-step = int(step)
-cap = cv.VideoCapture(race)
-width = int(cap.get(cv.CAP_PROP_FRAME_COUNT))
-col = width
+warnings.filterwarnings('ignore')
+camera = cv2.VideoCapture("udp://@0.0.0.0:3000")
 
-while cap.isOpened():
-    ret, frame = cap.read()
-    if not ret:
+def stretch_image(image, x_factor, img_h, img_w):
+    image = cv2.resize(image, (5*img_w, img_h))
+    return image
+
+
+ret, temp_image = camera.read()
+image_height = temp_image.shape[0]
+composite_image = temp_image[0:image_height, 0:1]
+
+while True:
+
+    ret, frame = camera.read()
+    temp = frame[0:image_height, 0:1]
+    composite_image = cv2.hconcat([composite_image, temp])
+    cv2.imshow('WebCam', frame)
+    if cv2.waitKey(1) == ord('q'):
         break
-    #cv.imshow('frame', frame)
-    height = frame.shape[0]
-    if col == width:
-        output = np.zeros((height, width, 3), np.uint8)
-    snippet = frame[0:height-1, 0:1]
-    output[0:height-1, col-1:col] = snippet
-    cv.imshow('who won?', output)
-    col = col - 1
-    if cv.waitKey(1) == ord('q'):
-        break
-black = np.zeros((height, 1, 3), np.uint8)
-for x in range(0, width, step):
-    output[0:height, ((x*step)-1):((x*step))] = black
-    output = cv.putText(output, str(x/30), (int(x * step), height-1), cv.FONT_HERSHEY_SIMPLEX, 0.3, (0, 0, 0))
 
-cv.imwrite("finish.png", output)
-cap.release()
-cv.destroyAllWindows()
+camera.release()
+cv2.destroyAllWindows()
+
+image_width = composite_image.shape[1]
+composite_image = stretch_image(composite_image, 5, image_height, image_width)
+cv2.imshow('finish cam', composite_image)
+
+while True:
+    if cv2.waitKey(1) == ord('q'):
+        camera.release()
+        cv2.destroyAllWindows()
+        break
