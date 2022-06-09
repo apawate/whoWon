@@ -9,7 +9,7 @@ slice_width = int(input("Enter image width: "))
 cap = cv2.VideoCapture(0)
 cap.set(3, slice_width)
 cap.set(4, slice_height)
-cap.set(cv2.CAP_PROP_FPS, 60)
+cap.set(cv2.CAP_PROP_FPS, 1000)  # Set frame rate to max possible
 
 frame_stream = []  # stores tuple of (unprocessed frame, timestamp)
 
@@ -20,6 +20,19 @@ while not ret:
 
 composite_image = temp_image[0:slice_height, 0:1]
 cv2.imshow('Waiting to start', composite_image)
+
+# Checking frame rate to determine stretching factor
+
+frame_counter = 0  # is also the fps
+fps_elapsed_time = 0
+fps_start_time = time.time()
+while fps_elapsed_time < 1.0:  # checking number of frames in one second
+    frame_returned, frame = cap.read()
+    if frame_returned:
+        frame_counter += 1
+    fps_elapsed_time = time.time() - fps_start_time
+
+stretching_factor = int(240/frame_counter)  # stretching to match 240 fps
 
 while True:  # Pressing 's' starts the timer
     if cv2.waitKey(1) == ord('s'):
@@ -75,7 +88,7 @@ def process_stream():
             # IMAGE PROCESSING
             full_frame = frame_stream[0][0]  # Taking frame value of first capture
             temp = full_frame[0:slice_height, 0:1]  # Slicing
-            temp = stretch_image(temp, 5, slice_height, 1)  # Stretching
+            temp = stretch_image(temp, stretching_factor, slice_height, 1)  # Stretching
             composite_image = cv2.hconcat([temp, composite_image])  # Creating image
             cv2.imshow('WebCam', full_frame)  # Showing currently processing frame
             cv2.imshow('Composite', composite_image[0:slice_height, 0:1500])  # Showing selection of composite image
