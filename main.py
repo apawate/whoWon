@@ -6,7 +6,8 @@ import cv2
 slice_height = int(input("Enter image height: "))
 slice_width = int(input("Enter image width: "))
 
-cap = cv2.VideoCapture(0)
+#cap = cv2.VideoCapture(0)
+cap = cv2.VideoCapture("http://10.0.1.12:3000")
 cap.set(3, slice_width)
 cap.set(4, slice_height)
 cap.set(cv2.CAP_PROP_FPS, 1000)  # Set frame rate to max possible
@@ -61,6 +62,7 @@ def process_time(number_time):
 
 
 def capture_image():
+    print("capture")
     num_frame = 0
     while True:
 
@@ -77,13 +79,17 @@ def capture_image():
             cap.release()
 
             break
+        print(len(frame_stream))
 
 
 def process_stream():
+    print("process")
+    print(cap.isOpened())
+    print(len(frame_stream))
     prev_time = 0.0
     global composite_image
     while True:
-        while len(frame_stream) > 0:
+        while len(frame_stream) >= 0:
 
             # IMAGE PROCESSING
             full_frame = frame_stream[0][0]  # Taking frame value of first capture
