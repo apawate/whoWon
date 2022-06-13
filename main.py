@@ -79,18 +79,16 @@ def capture_image():
             cap.release()
 
             break
-        print(len(frame_stream))
 
 
 def process_stream():
+    time.sleep(1)
     print("process")
     print(cap.isOpened())
-    print(len(frame_stream))
     prev_time = 0.0
     global composite_image
     while True:
         while len(frame_stream) >= 0:
-
             # IMAGE PROCESSING
             full_frame = frame_stream[0][0]  # Taking frame value of first capture
             temp = full_frame[0:slice_height, 0:1]  # Slicing
