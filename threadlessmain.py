@@ -71,6 +71,7 @@ cv2.destroyAllWindows()
 
 cv2.imshow('finish cam', composite_image)
 
+
 while True:
     if cv2.waitKey(1) == ord('q'):
         cap.release()
