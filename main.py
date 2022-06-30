@@ -62,6 +62,7 @@ def process_time(number_time):
 
 
 def capture_image():
+    global frame_stream
     print("capture")
     num_frame = 0
     while True:
@@ -82,6 +83,7 @@ def capture_image():
 
 
 def process_stream():
+    global frame_stream
     time.sleep(1)
     print("process")
     print(cap.isOpened())
