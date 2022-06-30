@@ -7,7 +7,7 @@ slice_height = int(input("Enter image height: "))
 slice_width = int(input("Enter image width: "))
 
 #cap = cv2.VideoCapture(0)
-cap = cv2.VideoCapture("http://10.0.1.12:3000")
+cap = cv2.VideoCapture("http://10.0.1.13:5000")
 cap.set(3, slice_width)
 cap.set(4, slice_height)
 cap.set(cv2.CAP_PROP_FPS, 1000)  # Set frame rate to max possible
@@ -66,6 +66,7 @@ def capture_image():
     print("capture")
     num_frame = 0
     while True:
+        print(len(frame_stream))
 
         captured, frame = cap.read()  # Capturing image
         if captured:  # If a frame has been captured
@@ -90,16 +91,22 @@ def process_stream():
     prev_time = 0.0
     global composite_image
     while True:
-        while len(frame_stream) >= 0:
+        while 1:
+            print("process", len(frame_stream))
             # IMAGE PROCESSING
             full_frame = frame_stream[0][0]  # Taking frame value of first capture
             temp = full_frame[0:slice_height, 0:1]  # Slicing
             temp = stretch_image(temp, stretching_factor, slice_height, 1)  # Stretching
             composite_image = cv2.hconcat([temp, composite_image])  # Creating image
+            print('a')
+            print(full_frame)
+            cv2.imwrite("a.png", full_frame)
+            cv2.imwrite("b.png", composite_image[0:slice_height, 0:1500])
             cv2.imshow('WebCam', full_frame)  # Showing currently processing frame
             cv2.imshow('Composite', composite_image[0:slice_height, 0:1500])  # Showing selection of composite image
 
             # TIME LABELS
+            print('b')
             frame_time = frame_stream[0][1]  # Taking timestamp of first capture
             if frame_time >= (prev_time + 0.5):  # If the timestamp warrants a label on the image
                 str_time = "|" + process_time(frame_time)  # Format the time
