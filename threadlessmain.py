@@ -1,7 +1,7 @@
 import time
 import cv2
 import numpy as np
-
+from threading import Thread
 
 def stretch_image(image, x_factor, img_h, img_w):
     image = cv2.resize(image, (x_factor * img_w, img_h))
@@ -24,7 +24,7 @@ def process_time(number_time):
 
 # Setting up camera and resolution
 cap = cv2.VideoCapture("http://10.0.1.13:5000")
-cap.set(cv2.CAP_PROP_FPS, 240)
+cap.set(cv2.CAP_PROP_FPS, 30)
 cap.set(3, 480)
 cap.set(4, 360)
 
