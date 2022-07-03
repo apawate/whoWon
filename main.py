@@ -1,4 +1,4 @@
-from multiprocessing import Process, Manager
+from multiprocessing import Process, Manager, Value
 import time
 import cv2
 
@@ -60,17 +60,26 @@ def process_time(number_time):
             combined_time = str(num_minutes) + ":" + str(seconds)
         return combined_time
 
+def average(lizst):
+    return sum(lizst)/len(lizst)
 
-def capture_image(frame_stream):
+def capture_image(frame_stream, avg):
     num_frame = 0
+    temp_time = 0
+    avglist = []
     while True:
         print("capture " + str(len(frame_stream)))
 
         captured, frame = cap.read()  # Capturing image
         if captured:  # If a frame has been captured
-
+            diff = time.time() - start_time - temp_time
+            if temp_time == 0:
+                diff = 1
+            avg.value = diff
             temp_time = time.time() - start_time  # Capturing timestamp
+            print("Time " + str(temp_time))
             frame_stream.append((frame, temp_time))  # Adding data to frame stream
+            print("Average " + str(avg.value))
             num_frame += 1
 
         if not cap.isOpened():
@@ -81,12 +90,13 @@ def capture_image(frame_stream):
             break
 
 
-def process_stream(frame_stream):
-    time.sleep(1)
+def process_stream(frame_stream, avg):
     prev_time = 0.0
+    time.sleep(1)
     global composite_image
     while True:
         while 1:
+            time.sleep(avg.value)
             print("process", len(frame_stream))
             # IMAGE PROCESSING
             full_frame = frame_stream[0][0]  # Taking frame value of first capture
@@ -115,9 +125,10 @@ def process_stream(frame_stream):
 
 
 with Manager() as manager: 
+    num = Value('d', 0.0)
     stream = manager.list()
-    capture_thread = Process(target=capture_image, args=(stream,))
-    process_thread = Process(target=process_stream, args=(stream,))
+    capture_thread = Process(target=capture_image, args=(stream,num))
+    process_thread = Process(target=process_stream, args=(stream,num))
     
     capture_thread.start()
     process_thread.start()
