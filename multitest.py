@@ -1,21 +1,19 @@
-from multiprocessing import Process
+from multiprocessing import Process, Value, Array
 
-c = 0
 
-def a():
-    global c
+def a(c):
     while True:
-        print("a" + str(c))
-        c = c + 1
+        print("a" + str(c.value))
+        c.value = c.value + 1
 
-def b():
+def b(c):
     while True:
-        global c
-        print("b" + str(c))
-        c = c + 1
+        print("b" + str(c.value))
+        c.value = c.value/2
 
-asdf = Process(target=a)
-bsdf = Process(target=b)
+num = Value('d', 0.0)
+asdf = Process(target=a, args=(num,))
+bsdf = Process(target=b, args=(num,))
 asdf.start()
 bsdf.start()
 asdf.join()
