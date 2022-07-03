@@ -1,4 +1,4 @@
-from threading import Thread
+from multiprocessing import Process
 import time
 import cv2
 
@@ -123,8 +123,8 @@ def process_stream():
             break
 
 
-capture_thread = Thread(target=capture_image)
-process_thread = Thread(target=process_stream)
+capture_thread = Process(target=capture_image)
+process_thread = Process(target=process_stream)
 
 capture_thread.start()
 process_thread.start()
