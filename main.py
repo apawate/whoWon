@@ -61,7 +61,7 @@ def process_time(number_time):
         return combined_time
 
 
-def capture_image(frame_stream, diff):
+def capture_image(frame_stream):
     num_frame = 0
     temp_time = 0
     while True:
@@ -69,13 +69,9 @@ def capture_image(frame_stream, diff):
 
         captured, frame = cap.read()  # Capturing image
         if captured:  # If a frame has been captured
-            diff.value = time.time() - start_time - temp_time # Find the delay between the frames (internet speed)
-            if temp_time == 0:
-                diff.value = 1 # Quick and dirty fix, will need to be updated later
             temp_time = time.time() - start_time  # Capturing timestamp
             print("Time " + str(temp_time))
             frame_stream.append((frame, temp_time))  # Adding data to frame stream
-            print("Frame delay " + str(diff.value))
             num_frame += 1
 
         if not cap.isOpened():
@@ -86,34 +82,35 @@ def capture_image(frame_stream, diff):
             break
 
 
-def process_stream(frame_stream, diff):
+def process_stream(frame_stream):
     prev_time = 0.0
-    time.sleep(1) # Time buffer to let the stream start
     global composite_image
     while True:
         while 1:
-            time.sleep(diff.value) # Delay by the average delay between frames, prevents zero-frame trap
-            print("process", len(frame_stream)) 
-            # IMAGE PROCESSING
-            full_frame = frame_stream[0][0]  # Taking frame value of first capture
-            temp = full_frame[0:slice_height, 0:1]  # Slicing
-            temp = stretch_image(temp, stretching_factor, slice_height, 1)  # Stretching
-            composite_image = cv2.hconcat([temp, composite_image])  # Creating image
-            cv2.imwrite("a.png", full_frame)
-            cv2.imwrite("b.png", composite_image[0:slice_height, 0:1500]) # Debugging images
-            #cv2.imshow('WebCam', full_frame)  # Showing currently processing frame
-            #cv2.imshow('Composite', composite_image[0:slice_height, 0:1500])  # Showing selection of composite image
+            if len(frame_stream) == 0:
+                continue
+            else:
+                print("process", len(frame_stream)) 
+                # IMAGE PROCESSING
+                full_frame = frame_stream[0][0]  # Taking frame value of first capture
+                temp = full_frame[0:slice_height, 0:1]  # Slicing
+                temp = stretch_image(temp, stretching_factor, slice_height, 1)  # Stretching
+                composite_image = cv2.hconcat([temp, composite_image])  # Creating image
+                cv2.imwrite("a.png", full_frame)
+                cv2.imwrite("b.png", composite_image[0:slice_height, 0:1500]) # Debugging images
+                #cv2.imshow('WebCam', full_frame)  # Showing currently processing frame
+                #cv2.imshow('Composite', composite_image[0:slice_height, 0:1500])  # Showing selection of composite image
 
-            # TIME LABELS
-            frame_time = frame_stream[0][1]  # Taking timestamp of first capture
-            if frame_time >= (prev_time + 0.5):  # If the timestamp warrants a label on the image
-                str_time = "|" + process_time(frame_time)  # Format the time
-                composite_image = cv2.putText(composite_image, str_time, (0, (slice_height - 3)), 1, 1, (0, 0, 255),
-                                              1)  # Add text
-                prev_time += 0.5  # Increment the requisite time
-            cv2.imwrite("finish3.png", composite_image)
-            frame_stream.pop(0)  # Removing processed frame
-            print("finished frame adding")
+                # TIME LABELS
+                frame_time = frame_stream[0][1]  # Taking timestamp of first capture
+                if frame_time >= (prev_time + 0.5):  # If the timestamp warrants a label on the image
+                    str_time = "|" + process_time(frame_time)  # Format the time
+                    composite_image = cv2.putText(composite_image, str_time, (0, (slice_height - 3)), 1, 1, (0, 0, 255),
+                                                 1)  # Add text
+                    prev_time += 0.5  # Increment the requisite time
+                cv2.imwrite("finish3.png", composite_image)
+                frame_stream.pop(0)  # Removing processed frame
+                print("finished frame adding")
 
         if cv2.waitKey(1) == ord('q'):  # Quitting when 'q' pressed
             cap.release()
@@ -121,10 +118,9 @@ def process_stream(frame_stream, diff):
 
 
 with Manager() as manager: 
-    num = Value('d', 0.0) # Setting up frame delay variable as a multiprocessing variable
     stream = manager.list() # Setting up frame stream variable as a multiprocessing variable
-    capture_thread = Process(target=capture_image, args=(stream,num))
-    process_thread = Process(target=process_stream, args=(stream,num)) # Initializing with shared variables
+    capture_thread = Process(target=capture_image, args=(stream))
+    process_thread = Process(target=process_stream, args=(stream)) # Initializing with shared variables
     
     capture_thread.start()
     process_thread.start()
