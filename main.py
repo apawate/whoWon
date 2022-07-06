@@ -1,4 +1,4 @@
-from multiprocessing import Process, Manager, Value
+from multiprocessing import Process, Manager, Value # Import necessary multiprocessing
 import time
 import cv2
 
@@ -7,7 +7,7 @@ slice_height = int(input("Enter image height: "))
 slice_width = int(input("Enter image width: "))
 
 #cap = cv2.VideoCapture(0)
-cap = cv2.VideoCapture("http://10.0.1.13:5000")
+cap = cv2.VideoCapture("http://10.0.1.13:5000") # Capture from IP of the camera (change if needed)
 cap.set(3, slice_width)
 cap.set(4, slice_height)
 cap.set(cv2.CAP_PROP_FPS, 1000)  # Set frame rate to max possible
@@ -60,26 +60,22 @@ def process_time(number_time):
             combined_time = str(num_minutes) + ":" + str(seconds)
         return combined_time
 
-def average(lizst):
-    return sum(lizst)/len(lizst)
 
-def capture_image(frame_stream, avg):
+def capture_image(frame_stream, diff):
     num_frame = 0
     temp_time = 0
-    avglist = []
     while True:
         print("capture " + str(len(frame_stream)))
 
         captured, frame = cap.read()  # Capturing image
         if captured:  # If a frame has been captured
-            diff = time.time() - start_time - temp_time
+            diff.value = time.time() - start_time - temp_time # Find the delay between the frames (internet speed)
             if temp_time == 0:
-                diff = 1
-            avg.value = diff
+                diff.value = 1 # Quick and dirty fix, will need to be updated later
             temp_time = time.time() - start_time  # Capturing timestamp
             print("Time " + str(temp_time))
             frame_stream.append((frame, temp_time))  # Adding data to frame stream
-            print("Average " + str(avg.value))
+            print("Frame delay " + str(diff.value))
             num_frame += 1
 
         if not cap.isOpened():
@@ -90,21 +86,21 @@ def capture_image(frame_stream, avg):
             break
 
 
-def process_stream(frame_stream, avg):
+def process_stream(frame_stream, diff):
     prev_time = 0.0
-    time.sleep(1)
+    time.sleep(1) # Time buffer to let the stream start
     global composite_image
     while True:
         while 1:
-            time.sleep(avg.value)
-            print("process", len(frame_stream))
+            time.sleep(diff.value) # Delay by the average delay between frames, prevents zero-frame trap
+            print("process", len(frame_stream)) 
             # IMAGE PROCESSING
             full_frame = frame_stream[0][0]  # Taking frame value of first capture
             temp = full_frame[0:slice_height, 0:1]  # Slicing
             temp = stretch_image(temp, stretching_factor, slice_height, 1)  # Stretching
             composite_image = cv2.hconcat([temp, composite_image])  # Creating image
             cv2.imwrite("a.png", full_frame)
-            cv2.imwrite("b.png", composite_image[0:slice_height, 0:1500])
+            cv2.imwrite("b.png", composite_image[0:slice_height, 0:1500]) # Debugging images
             #cv2.imshow('WebCam', full_frame)  # Showing currently processing frame
             #cv2.imshow('Composite', composite_image[0:slice_height, 0:1500])  # Showing selection of composite image
 
@@ -125,10 +121,10 @@ def process_stream(frame_stream, avg):
 
 
 with Manager() as manager: 
-    num = Value('d', 0.0)
-    stream = manager.list()
+    num = Value('d', 0.0) # Setting up frame delay variable as a multiprocessing variable
+    stream = manager.list() # Setting up frame stream variable as a multiprocessing variable
     capture_thread = Process(target=capture_image, args=(stream,num))
-    process_thread = Process(target=process_stream, args=(stream,num))
+    process_thread = Process(target=process_stream, args=(stream,num)) # Initializing with shared variables
     
     capture_thread.start()
     process_thread.start()
@@ -139,7 +135,7 @@ with Manager() as manager:
 cap.release()
 cv2.destroyAllWindows()
     
-cv2.imwrite('finish4.png', composite_image)
+cv2.imwrite('finish4.png', composite_image) # Writing finish camera to disk
 
 while True:
     if cv2.waitKey(1) == ord('f'):
