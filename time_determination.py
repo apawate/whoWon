@@ -2,7 +2,7 @@ import pygame
 from PIL import Image
 
 
-class Key(pygame.sprite.Sprite):
+class Key(pygame.sprite.Sprite):  # class Key used to define instances of red lines
     def __init__(self, x_pos):
         super(Key, self).__init__()
         self.clicked = False
@@ -16,6 +16,7 @@ pygame.init()
 FILE_PATH = input("Enter the file path to the image: ")
 original_image = Image.open(FILE_PATH)
 
+# Setting up display
 X = original_image.width
 Y = original_image.height
 
@@ -32,6 +33,7 @@ display_window.fill(BLACK)
 
 display_window.blit(img, (x_position, 0))
 
+# Main loop
 while True:
 
     display_window.fill(BLACK)
@@ -62,12 +64,15 @@ while True:
 
             # Left and right scrolling
         if event.type == pygame.KEYDOWN:
+            # If right arrow pressed, move lines and image
             if event.key == pygame.K_RIGHT:
                 if x_position > init_x_position:
                     x_position -= 100
                     for key in key_list:
                         left_edge = key.rect.left
                         key.rect = pygame.Rect((left_edge - 100, 0), (2, 1000))
+
+                # aligning lines when close to boundary
                 else:
                     delta = x_position - init_x_position
                     x_position = init_x_position
@@ -75,18 +80,22 @@ while True:
                         left_edge = key.rect.left
                         key.rect = pygame.Rect((left_edge - delta, 0), (2, 1000))
 
+            # If left arrow pressed, move lines and image
             if event.key == pygame.K_LEFT:
                 if x_position < -100:
                     x_position += 100
                     for key in key_list:
                         left_edge = key.rect.left
                         key.rect = pygame.Rect((left_edge + 100, 0), (2, 1000))
+
+                # aligning lines when close to boundary
                 else:
                     for key in key_list:
                         left_edge = key.rect.left
                         key.rect = pygame.Rect((left_edge - x_position, 0), (2, 1000))
                     x_position = 0
 
+    # Copying mouse movements to the line
     for key in key_list:
         if key.clicked:
             pos = pygame.mouse.get_pos()
