@@ -1,3 +1,8 @@
 # whoWon
-Who won the race?
-Easy race finish program that takes any video and makes a finish video of it. Currently in a very basic version.
+
+An open-source, quick race finish tool for use in cross country and track races. 
+
+**Features:**
+- Multithreading for faster processing
+- Timestamps and lines for exact measurement
+- Quick setup with any camera and any device running [Python](https://python.org)
