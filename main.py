@@ -138,3 +138,6 @@ while True:
         cap.release()
         cv2.destroyAllWindows()
         break
+
+if __name__ == '__main__':
+    freeze_support()
