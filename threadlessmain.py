@@ -52,8 +52,8 @@ while True:
     temp = frame[0:slice_height, 0:1]
     temp = stretch_image(temp, 10, slice_height, 1)
     composite_image = cv2.hconcat([temp, composite_image])
-    cv2.imshow('WebCam', frame)
-    cv2.imshow('Composite', composite_image)
+    #cv2.imshow('WebCam', frame)
+    #cv2.imshow('Composite', composite_image)
 
     # TIMER
     elapsed_time = time.time() - start_time
@@ -62,6 +62,8 @@ while True:
         # add text
         composite_image = cv2.putText(composite_image, str_time, (0, (slice_height - 3)), 1, 0.5, (0, 0, 255), 1)
         prev_time += 0.5
+    print(elapsed_time)
+    cv2.imwrite('finish3.png', composite_image)
 
     if cv2.waitKey(1) == ord('q'):
         break
@@ -69,7 +71,7 @@ while True:
 cap.release()
 cv2.destroyAllWindows()
 
-cv2.imshow('finish cam', composite_image)
+cv2.imwrite('finish3.png', composite_image)
 
 
 while True:
