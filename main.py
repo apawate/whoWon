@@ -107,8 +107,9 @@ def process_stream(frame_stream):
                     str_time = "|" + process_time(frame_time)  # Format the time
                     composite_image = cv2.putText(composite_image, str_time, (0, (slice_height - 3)), 1, 1, (0, 0, 255),
                                                  1)  # Add text
+                    print(type(composite_image))
                     prev_time += 0.5  # Increment the requisite time
-                cv2.imwrite("finish3.png", composite_image)
+                cv2.imwrite("finishcam.png", composite_image)
                 frame_stream.pop(0)  # Removing processed frame
                 print("finished frame adding")
 
@@ -116,26 +117,24 @@ def process_stream(frame_stream):
             cap.release()
             break
 
-if __name__ == '__main__':
-    with Manager() as manager: 
-        stream = manager.list() # Setting up frame stream variable as a multiprocessing variable
-        capture_thread = Process(target=capture_image, args=(stream))
-        process_thread = Process(target=process_stream, args=(stream)) # Initializing with shared variables
+with Manager() as manager: 
+    stream = manager.list() # Setting up frame stream variable as a multiprocessing variable
+    capture_thread = Process(target=capture_image, args=(stream,))
+    process_thread = Process(target=process_stream, args=(stream,)) # Initializing with shared variables
+    
+    capture_thread.start()
+    process_thread.start()
+    
+    capture_thread.join()
+    process_thread.join()
         
-        capture_thread.start()
-        process_thread.start()
-        
-        capture_thread.join()
-        process_thread.join()
-        
-    cap.release()
-    cv2.destroyAllWindows()
-        
-    cv2.imwrite('finishcam.png', composite_image) # Writing finish camera to disk
+cap.release()
+cv2.destroyAllWindows()
+    
 
-    while True:
-        if cv2.waitKey(1) == ord('f'):
-            cap.release()
-            cv2.destroyAllWindows()
-            break
+while True:
+    if cv2.waitKey(1) == ord('f'):
+        cap.release()
+        cv2.destroyAllWindows()
+        break
 
