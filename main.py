@@ -116,28 +116,26 @@ def process_stream(frame_stream):
             cap.release()
             break
 
-
-with Manager() as manager: 
-    stream = manager.list() # Setting up frame stream variable as a multiprocessing variable
-    capture_thread = Process(target=capture_image, args=(stream))
-    process_thread = Process(target=process_stream, args=(stream)) # Initializing with shared variables
-    
-    capture_thread.start()
-    process_thread.start()
-    
-    capture_thread.join()
-    process_thread.join()
-    
-cap.release()
-cv2.destroyAllWindows()
-    
-cv2.imwrite('finishcam.png', composite_image) # Writing finish camera to disk
-
-while True:
-    if cv2.waitKey(1) == ord('f'):
-        cap.release()
-        cv2.destroyAllWindows()
-        break
-
 if __name__ == '__main__':
-    freeze_support()
+    with Manager() as manager: 
+        stream = manager.list() # Setting up frame stream variable as a multiprocessing variable
+        capture_thread = Process(target=capture_image, args=(stream))
+        process_thread = Process(target=process_stream, args=(stream)) # Initializing with shared variables
+        
+        capture_thread.start()
+        process_thread.start()
+        
+        capture_thread.join()
+        process_thread.join()
+        
+    cap.release()
+    cv2.destroyAllWindows()
+        
+    cv2.imwrite('finishcam.png', composite_image) # Writing finish camera to disk
+
+    while True:
+        if cv2.waitKey(1) == ord('f'):
+            cap.release()
+            cv2.destroyAllWindows()
+            break
+
