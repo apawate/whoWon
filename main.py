@@ -131,7 +131,7 @@ with Manager() as manager:
 cap.release()
 cv2.destroyAllWindows()
     
-cv2.imwrite('finish4.png', composite_image) # Writing finish camera to disk
+cv2.imwrite('finishcam.png', composite_image) # Writing finish camera to disk
 
 while True:
     if cv2.waitKey(1) == ord('f'):
